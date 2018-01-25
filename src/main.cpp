@@ -6,7 +6,7 @@
 #include <string>
 #include <functional>
 #include <iostream>
-#include "Templated_observer.h"
+#include <observe/cpp_observe.hpp>
 
 
 void test1()
@@ -23,13 +23,13 @@ void test2(std::string text)
 
 int main()
 {
-	auto sub1 = T_observer::Subject<>{};
+	auto sub1 = observe::subject<>{};
 
-	auto obs1 = T_observer::Observer<>{test1};
+	auto obs1 = observe::observer<>{test1};
 
 	// clang-tidy modernize-avoid-bind adds an extra semicolon
-	auto obs2 = T_observer::Observer<>{[]() { test2("obs2"); }};
-	auto obs3 = T_observer::Observer<>{[]() { test2("obs3"); }};
+	auto obs2 = observe::observer<>{[]() { test2("obs2"); }};
+	auto obs3 = observe::observer<>{[]() { test2("obs3"); }};
 
 	sub1.add_observer(obs1);
 	sub1.add_observer(obs2);
@@ -38,10 +38,10 @@ int main()
 	sub1();
 
 
-	auto sub2 = T_observer::Subject<int>{};
+	auto sub2 = observe::subject<int>{};
 
-	auto obs2_1 = T_observer::Observer<int>{[](int i) { test2(std::string{"obs1 "} + std::to_string(i)); }};
-	auto obs2_2 = T_observer::Observer<int>{[](int i) { test2(std::string{"obs2 "} + std::to_string(i)); }};
+	auto obs2_1 = observe::observer<int>{[](int i) { test2(std::string{"obs1 "} + std::to_string(i)); }};
+	auto obs2_2 = observe::observer<int>{[](int i) { test2(std::string{"obs2 "} + std::to_string(i)); }};
 
 	sub2.add_observer(obs2_1);
 	sub2.add_observer(obs2_2);

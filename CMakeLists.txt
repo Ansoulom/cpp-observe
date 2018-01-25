@@ -18,4 +18,9 @@ set(PROJ_INCLUDE_DIR include)
 
 add_library(${PROJ_TARGET_NAME} INTERFACE)
 
-target_include_directories(${PROJ_TARGET_NAME} INTERFACE ${PROJ_INCLUDE_DIR})
+target_include_directories(${PROJ_TARGET_NAME} INTERFACE include/)
+
+# Testing
+add_executable(CppObserveTest src/main.cpp)
+
+target_link_libraries(CppObserveTest ${PROJ_TARGET_NAME})
