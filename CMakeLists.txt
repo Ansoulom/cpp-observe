@@ -12,6 +12,13 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC") # MSVC specific commands
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17") # MSVC does not support CMAKE_CXX_STANDARD
 endif()
 
+# Build path variables
+set(PROJ_PATH ${CMAKE_SOURCE_DIR})
+set(PROJ_BUILD_PATH ${PROJ_PATH}/build)
+set(CMAKE_BINARY_DIR ${PROJ_BUILD_PATH})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJ_BUILD_PATH})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJ_BUILD_PATH})
+
 # Conan setup
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
@@ -27,7 +34,10 @@ target_include_directories(${LIB_TARGET_NAME} INTERFACE ${LIB_INCLUDE_DIR})
 # Testing variables
 set(TEST_TARGET_NAME ${PROJ_NAME}_test)
 set(TEST_SOURCE_DIR src)
-set(TEST_SOURCE_FILES ${TEST_SOURCE_DIR}/main.cpp)
+set(TEST_SOURCE_FILES
+${TEST_SOURCE_DIR}/test_main.cpp
+${TEST_SOURCE_DIR}/observer_tests.cpp
+)
 
 # Create testing binary
 add_executable(${TEST_TARGET_NAME} ${TEST_SOURCE_FILES})

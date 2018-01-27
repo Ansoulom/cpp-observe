@@ -94,7 +94,6 @@ namespace observe
 	template<typename ... Args>
 	observer<Args...>& observer<Args...>::operator=(const observer& other)
 	{
-		// Should the list be cleared, remain the same or be copied?
 		clear();
 		function_ = other.function_;
 
@@ -147,6 +146,7 @@ namespace observe
 	template<typename ... Args>
 	void observer<Args...>::clear()
 	{
+		// Maybe this should just loop backwards instead?
 		while(!subjects_.empty())
 		{
 			subjects_[0]->remove_observer(*this);
@@ -157,6 +157,7 @@ namespace observe
 	template<typename ... Args>
 	subject<Args...>::~subject()
 	{
+		// This could probably also be looped backwards
 		for(auto observer : observers_)
 		{
 			observer->subjects_.erase(
