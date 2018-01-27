@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 3.9)
 
-set(CMAKE_CXX_STANDARD 17)
+set(PROJ_NAME "cpp_observe")
+project(${PROJ_NAME} VERSION 0.1 LANGUAGES CXX)
 
+# Compiler flags
+set(CMAKE_CXX_STANDARD 17)
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") # GCC specific commands
 	add_compile_options(-W -Wall -Werror)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC") # MSVC specific commands
@@ -9,18 +12,24 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC") # MSVC specific commands
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17") # MSVC does not support CMAKE_CXX_STANDARD
 endif()
 
-set(PROJ_NAME "CppObserve")
-project(${PROJ_NAME} VERSION 0.1 LANGUAGES CXX)
+# Conan setup
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
 
-set(PROJ_TARGET_NAME ${PROJ_NAME})
-set(PROJ_SOURCE_DIR src)
-set(PROJ_INCLUDE_DIR include)
+# Library variables
+set(LIB_TARGET_NAME ${PROJ_NAME})
+set(LIB_INCLUDE_DIR include)
 
-add_library(${PROJ_TARGET_NAME} INTERFACE)
+# Create library
+add_library(${LIB_TARGET_NAME} INTERFACE)
+target_include_directories(${LIB_TARGET_NAME} INTERFACE ${LIB_INCLUDE_DIR})
 
-target_include_directories(${PROJ_TARGET_NAME} INTERFACE include/)
+# Testing variables
+set(TEST_TARGET_NAME ${PROJ_NAME}_test)
+set(TEST_SOURCE_DIR src)
+set(TEST_SOURCE_FILES ${TEST_SOURCE_DIR}/main.cpp)
 
-# Testing
-add_executable(CppObserveTest src/main.cpp)
-
-target_link_libraries(CppObserveTest ${PROJ_TARGET_NAME})
+# Create testing binary
+add_executable(${TEST_TARGET_NAME} ${TEST_SOURCE_FILES})
+target_link_libraries(${TEST_TARGET_NAME} ${LIB_TARGET_NAME})
+target_link_libraries(${TEST_TARGET_NAME} ${CONAN_LIBS})
