@@ -25,6 +25,14 @@ TEST_CASE("Callback works", "[observer]")
 		REQUIRE(times_executed == 1);
 		REQUIRE(new_function);
 	}
+	SECTION("Adding an already added observer will not do anything")
+	{
+		subject.add_observer(observer);
+
+		times_executed = 0;
+		subject();
+		REQUIRE(times_executed == 1);
+	}
 }
 
 
@@ -62,6 +70,16 @@ TEST_CASE("Can use multiple observers for a subject", "[observer]")
 		subject();
 		
 		REQUIRE(sum == 4);
+
+		SECTION("Removing an observer that has not be added will not do anything")
+		{
+			auto observer_4 = observe::observer<>{ [&sum]() {sum += 4; } };
+			subject.remove_observer(observer_4);
+
+			sum = 0;
+			REQUIRE_NOTHROW(subject());
+			REQUIRE(sum == 4);
+		}
 	}
 	SECTION("Subjects can be cleared")
 	{
@@ -93,10 +111,11 @@ TEST_CASE("Can use multiple observers for a subject", "[observer]")
 
 TEST_CASE("Move and copy operations work")
 {
-	SECTION("Observer move operation")
+	auto test_result = "Has not changed";
+	auto times_executed = 0;
+	auto subject = observe::subject<>{};
+	SECTION("Observer move assignment operator")
 	{
-		auto test_result = "Has not changed";
-		auto subject = observe::subject<>{};
 		auto observer_1 = observe::observer<>{};
 		{
 			auto observer_2 = observe::observer<>{ [&test_result]() {test_result = "Moved"; } };
@@ -107,13 +126,88 @@ TEST_CASE("Move and copy operations work")
 
 		REQUIRE(test_result == "Moved");
 	}
+	SECTION("Observer move constructor")
+	{
+		auto observer_1 = observe::observer<>{ [&times_executed]() {++times_executed; } };
+		subject.add_observer(observer_1);
+		auto observer_2 = std::move(observer_1);
+
+		subject();
+		REQUIRE(times_executed == 1);
+
+		observer_1 = {};
+		subject();
+		REQUIRE(times_executed == 2);
+	}
+	SECTION("Observer copy constructor and copy assignment operator")
+	{
+		auto observer_1 = observe::observer<>{ [&times_executed]() {++times_executed; } };
+		subject.add_observer(observer_1);
+		auto observer_2 = observer_1;
+
+		subject();
+		REQUIRE(times_executed == 1);
+
+		subject.add_observer(observer_2);
+		times_executed = 0;
+		subject();
+		REQUIRE(times_executed == 2);
+
+		observer_1 = {};
+		times_executed = 0;
+		subject();
+		REQUIRE(times_executed == 1);
+	}
+	SECTION("Subject move constructor")
+	{
+		auto observer_1 = observe::observer<>{ [&times_executed]() {++times_executed; } };
+		subject.add_observer(observer_1);
+		auto subject_2 = std::move(subject);
+
+		subject();
+		REQUIRE(times_executed == 0);
+
+		subject_2();
+		REQUIRE(times_executed == 1);
+
+		SECTION("Subject move assignment operator")
+		{
+			subject = std::move(subject_2);
+
+			times_executed = 0;
+			subject();
+			REQUIRE(times_executed == 1);
+
+			subject_2();
+			REQUIRE(times_executed == 1);
+		}
+	}
+	SECTION("Subject copy operations")
+	{
+		auto observer_1 = observe::observer<>{ [&times_executed]() {++times_executed; } };
+		subject.add_observer(observer_1);
+		auto subject_2 = subject;
+
+		subject();
+		REQUIRE(times_executed == 1);
+
+		subject_2();
+		REQUIRE(times_executed == 2);
+
+		SECTION("Subject copy assignment operator")
+		{
+			auto observer_2 = observe::observer<>{ [&times_executed]() {times_executed += 2; } };
+			subject.add_observer(observer_2);
+
+			times_executed = 0;
+			subject();
+			REQUIRE(times_executed == 3);
+			subject_2();
+			REQUIRE(times_executed == 4);
+
+			subject_2 = subject;
+			subject_2();
+			REQUIRE(times_executed == 7);
+		}
+	}
 }
-
-
-// TODO: Test observer move constructor
-// TODO: Test subject move constructor
-// TODO: Test subject move assignment operator
-// TODO: Test observer copy constructor
-// TODO: Test observer copy assignment operator
-// TODO: Test subject copy constructor
-// TODO: Test subject copy assignment operator
