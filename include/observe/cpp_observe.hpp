@@ -22,7 +22,7 @@ namespace observe
 	class observer
 	{
 	public:
-		observer();
+		observer() = default;
 		explicit observer(std::function<void(Args ...)> function);
 		~observer();
 
@@ -69,10 +69,6 @@ namespace observe
 	};
 
 
-	template<typename ... Args>
-	observer<Args...>::observer() {}
-
-
 	template<typename... Args>
 	observer<Args...>::observer(std::function<void(Args ...)> function)
 		: function_{move(function)} { }
@@ -94,7 +90,6 @@ namespace observe
 	template<typename ... Args>
 	observer<Args...>& observer<Args...>::operator=(const observer& other)
 	{
-		// Should the list be cleared, remain the same or be copied?
 		clear();
 		function_ = other.function_;
 
@@ -147,6 +142,7 @@ namespace observe
 	template<typename ... Args>
 	void observer<Args...>::clear()
 	{
+		// Maybe this should just loop backwards instead?
 		while(!subjects_.empty())
 		{
 			subjects_[0]->remove_observer(*this);
@@ -157,6 +153,7 @@ namespace observe
 	template<typename ... Args>
 	subject<Args...>::~subject()
 	{
+		// This could probably also be looped backwards
 		for(auto observer : observers_)
 		{
 			observer->subjects_.erase(
@@ -171,7 +168,7 @@ namespace observe
 	{
 		for(auto observer : other.observers_)
 		{
-			add_observer(observer);
+			add_observer(*observer);
 		}
 	}
 
@@ -182,7 +179,7 @@ namespace observe
 		clear();
 		for(auto observer : other.observers_)
 		{
-			add_observer(observer);
+			add_observer(*observer);
 		}
 
 		return *this;
@@ -194,7 +191,7 @@ namespace observe
 	{
 		for(auto observer : other.observers_)
 		{
-			add_observer(observer);
+			add_observer(*observer);
 		}
 		other.clear();
 	}
@@ -206,7 +203,7 @@ namespace observe
 		clear();
 		for(auto observer : other.observers_)
 		{
-			add_observer(observer);
+			add_observer(*observer);
 		}
 		other.clear();
 
@@ -217,6 +214,8 @@ namespace observe
 	template<typename ... Args>
 	void subject<Args...>::add_observer(observer<Args...>& observer)
 	{
+		if (auto iter = std::find(std::begin(observers_), std::end(observers_), &observer); iter != std::end(observers_)) return;
+
 		observers_.push_back(&observer);
 		observer.subjects_.push_back(this);
 	}
