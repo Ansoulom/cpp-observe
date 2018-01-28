@@ -22,7 +22,7 @@ namespace observe
 	class observer
 	{
 	public:
-		observer();
+		observer() = default;
 		explicit observer(std::function<void(Args ...)> function);
 		~observer();
 
@@ -67,10 +67,6 @@ namespace observe
 	private:
 		std::vector<observer<Args...>*> observers_{};
 	};
-
-
-	template<typename ... Args>
-	observer<Args...>::observer() {}
 
 
 	template<typename... Args>
@@ -172,7 +168,7 @@ namespace observe
 	{
 		for(auto observer : other.observers_)
 		{
-			add_observer(observer);
+			add_observer(*observer);
 		}
 	}
 
@@ -183,7 +179,7 @@ namespace observe
 		clear();
 		for(auto observer : other.observers_)
 		{
-			add_observer(observer);
+			add_observer(*observer);
 		}
 
 		return *this;
@@ -195,7 +191,7 @@ namespace observe
 	{
 		for(auto observer : other.observers_)
 		{
-			add_observer(observer);
+			add_observer(*observer);
 		}
 		other.clear();
 	}
@@ -207,7 +203,7 @@ namespace observe
 		clear();
 		for(auto observer : other.observers_)
 		{
-			add_observer(observer);
+			add_observer(*observer);
 		}
 		other.clear();
 
@@ -218,6 +214,8 @@ namespace observe
 	template<typename ... Args>
 	void subject<Args...>::add_observer(observer<Args...>& observer)
 	{
+		if (auto iter = std::find(std::begin(observers_), std::end(observers_), &observer); iter != std::end(observers_)) return;
+
 		observers_.push_back(&observer);
 		observer.subjects_.push_back(this);
 	}
