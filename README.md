@@ -5,6 +5,8 @@ This implementation favours composition rather than inheritance, which means tha
 
 Both the subjects and observers are completely safe to destroy or move without having to unregister the observer, as the destructors and move constructors will take care of that automatically.
 
+The library version is currently 0.1.0, as I would like more feedback and polishing before releasing a 1.0.0 version. It's probably safe to use in your application anyway, but not recommended yet.
+
 # Installation
 There are currently two ways to install C++ Observe:
 
