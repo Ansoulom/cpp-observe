@@ -5,10 +5,8 @@ project(${PROJ_NAME} VERSION 0.1 LANGUAGES CXX)
 
 # Compiler flags
 set(CMAKE_CXX_STANDARD 17)
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") # GCC specific commands
-	add_compile_options(-W -Wall -Werror)
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC") # MSVC specific commands
-	add_compile_options(/W3 /WX)
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC") # MSVC specific commands
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17") # MSVC does not support CMAKE_CXX_STANDARD
 endif()
 
@@ -25,7 +23,7 @@ conan_basic_setup()
 
 # Library variables
 set(LIB_TARGET_NAME ${PROJ_NAME})
-set(LIB_INCLUDE_DIR include)
+set(LIB_INCLUDE_DIR source/library/include)
 
 # Create library
 add_library(${LIB_TARGET_NAME} INTERFACE)
@@ -33,7 +31,7 @@ target_include_directories(${LIB_TARGET_NAME} INTERFACE ${LIB_INCLUDE_DIR})
 
 # Testing variables
 set(TEST_TARGET_NAME ${PROJ_NAME}_test)
-set(TEST_SOURCE_DIR src)
+set(TEST_SOURCE_DIR source/tests/src)
 set(TEST_SOURCE_FILES
 ${TEST_SOURCE_DIR}/test_main.cpp
 ${TEST_SOURCE_DIR}/observer_tests.cpp
