@@ -7,15 +7,18 @@ Both the subjects and observers are completely safe to destroy or move without h
 
 # Installation
 There are currently two ways to install C++ Observe:
+
 ## Via Conan
 If you're using Conan for package management, you can add this package to your [requires] list in your conanfile.txt.
 You can find the package on Bintray: [insert URL here]
+
 ## Manual download
 There is only a single header file, so you can just download it directly and include it.
 Download cpp_observe.hpp and put it in one of your project's include directories.
 
 # Usage
 There are two template classes in this library: An observer class and a subject class. You don't need to inherit from either of these, but you can still do it if you want your class to have the same interface as a subject or an observer.
+
 ## Example 1: Basic usage
 ```cpp
 #include <observe/observe.hpp>
@@ -180,3 +183,7 @@ private:
 };
 ```
 I am planning on utilizing moved and destroyed events in another library I'm writing, for a "safe" pointer type that continue to point to an object after it has moved, and point to nullptr if the object has been destroyed. That will also require me to construct Move_observable and Destroy_observable concepts/requirements that other templates could use.
+
+# Thanks
+Thank you for checking out this small, but (hopefully) neat library!
+Any kind of feedback would be very much appreciated!
