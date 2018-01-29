@@ -6,7 +6,13 @@ This implementation favours composition rather than inheritance, which means tha
 Both the subjects and observers are completely safe to destroy or move without having to unregister the observer, as the destructors and move constructors will take care of that automatically.
 
 # Installation
-There is only a single header file, so all you need to do is download it and include it.
+There are currently two ways to install C++ Observe:
+## Via Conan
+If you're using Conan for package management, you can add this package to your [requires] list in your conanfile.txt.
+You can find the package on Bintray: [insert URL here]
+## Manual download
+There is only a single header file, so you can just download it directly and include it.
+Download cpp_observe.hpp and put it in one of your project's include directories.
 
 # Usage
 TODO: Write an example
