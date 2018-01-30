@@ -12,7 +12,7 @@ There are currently two ways to install C++ Observe:
 
 ## Via Conan
 If you're using Conan for package management, you can add this package to your [requires] list in your conanfile.txt.
-You can find the package on Bintray: [insert URL here]
+You can find the package on Bintray: https://bintray.com/ansou/conan/cpp-observe:ansou
 
 ## Manual download
 There is only a single header file, so you can just download it directly and include it.
