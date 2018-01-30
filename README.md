@@ -186,6 +186,13 @@ private:
 ```
 I am planning on utilizing moved and destroyed events in another library I'm writing, for a "safe" pointer type that continue to point to an object after it has moved, and point to nullptr if the object has been destroyed. That will also require me to construct Move_observable and Destroy_observable concepts/requirements that other templates could use.
 
+# Todo
+- Make a separate interface for adding/removing observers to/from a subject without being able to access its other members
+- Add operator += and -= to subject, as aliases for add_observer/remove_observer (like with delegates in C#)
+- Figure out if I can/should do some const magic to make it possible to have add/remove functions be const
+- Add DestroyObservable, CopyObservable and MoveObservable concepts
+- Fix CMake target to actually export as a target (if someone wants to help me with this, please feel free!)
+
 # Thanks
 Thank you for checking out this small, but (hopefully) neat library!
 Any kind of feedback would be very much appreciated!
