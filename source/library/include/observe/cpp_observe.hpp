@@ -70,6 +70,22 @@ namespace observe
 
 
 	template<typename... Args>
+	subject<Args...>& operator+=(subject<Args...>& lhs, observer<Args...>& rhs)
+	{
+		lhs.add_observer(rhs);
+		return lhs;
+	}
+
+
+	template<typename... Args>
+	subject<Args...>& operator-=(subject<Args...>& lhs, observer<Args...>& rhs)
+	{
+		lhs.remove_observer(rhs);
+		return lhs;
+	}
+
+
+	template<typename... Args>
 	observer<Args...>::observer(std::function<void(Args ...)> function)
 		: function_{move(function)} { }
 

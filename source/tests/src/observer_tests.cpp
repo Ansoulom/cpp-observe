@@ -16,6 +16,7 @@ TEST_CASE("Callback works", "[observer]")
 
 	REQUIRE(times_executed == 1);
 
+	
 	SECTION("Can set a new function for the observer")
 	{
 		auto new_function = false;
@@ -30,6 +31,25 @@ TEST_CASE("Callback works", "[observer]")
 		subject.add_observer(observer);
 
 		times_executed = 0;
+		subject();
+		REQUIRE(times_executed == 1);
+	}
+}
+
+
+TEST_CASE("Operator += works")
+{
+	auto times_executed = 0;
+	auto subject = observe::subject<>{};
+	auto observer = observe::observer<>{ [&times_executed]() { ++times_executed; } };
+	subject += observer;
+	subject();
+
+	REQUIRE(times_executed == 1);
+
+	SECTION("Operator -= works")
+	{
+		subject -= observer;
 		subject();
 		REQUIRE(times_executed == 1);
 	}
