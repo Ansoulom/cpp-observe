@@ -1,4 +1,4 @@
-# C++ Observe - A Templated Observer for Modern C++
+# C++ Observe - A templated observer for modern C++
 This is a simple but flexible implementation of the observer pattern.
 
 This implementation favours composition rather than inheritance, which means that a single object can have multiple observers, with different names and functions. It uses std::function to allow callback to any free- or member function, with possibilities for lambdas. Arbitrary arguments can be sent to the observer with variadic templates.
