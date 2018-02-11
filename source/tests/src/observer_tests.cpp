@@ -26,13 +26,13 @@ TEST_CASE("Callback works", "[observer]")
 		REQUIRE(times_executed == 1);
 		REQUIRE(new_function);
 	}
-	SECTION("Adding an already added observer will not do anything")
+	SECTION("Adding an already added observer will make it execute twice")
 	{
 		subject.add_observer(observer);
 
 		times_executed = 0;
 		subject();
-		REQUIRE(times_executed == 1);
+		REQUIRE(times_executed == 2);
 	}
 }
 
@@ -94,7 +94,7 @@ TEST_CASE("Can use multiple observers for a subject", "[observer]")
 		SECTION("Removing an observer that has not be added will not do anything")
 		{
 			auto observer_4 = observe::observer<>{ [&sum]() {sum += 4; } };
-			subject.remove_observer(observer_4);
+			REQUIRE_NOTHROW(subject.remove_observer(observer_4));
 
 			sum = 0;
 			REQUIRE_NOTHROW(subject());

@@ -66,6 +66,7 @@ namespace observe
 
 	private:
 		std::vector<observer<Args...>*> observers_{};
+		int notify_counter_{};
 	};
 
 
@@ -90,7 +91,6 @@ namespace observe
 		: function_{move(function)} { }
 
 
-	// Remove observer from all subjects when it gets destroyed
 	template<typename ... Args>
 	observer<Args...>::~observer()
 	{
@@ -158,10 +158,9 @@ namespace observe
 	template<typename ... Args>
 	void observer<Args...>::clear()
 	{
-		// Maybe this should just loop backwards instead?
 		while(!subjects_.empty())
 		{
-			subjects_[0]->remove_observer(*this);
+			subjects_[subjects_.size() - 1]->remove_observer(*this);
 		}
 	}
 
@@ -169,7 +168,6 @@ namespace observe
 	template<typename ... Args>
 	subject<Args...>::~subject()
 	{
-		// This could probably also be looped backwards
 		for(auto observer : observers_)
 		{
 			observer->subjects_.erase(
@@ -230,8 +228,6 @@ namespace observe
 	template<typename ... Args>
 	void subject<Args...>::add_observer(observer<Args...>& observer)
 	{
-		if (auto iter = std::find(std::begin(observers_), std::end(observers_), &observer); iter != std::end(observers_)) return;
-
 		observers_.push_back(&observer);
 		observer.subjects_.push_back(this);
 	}
@@ -240,10 +236,30 @@ namespace observe
 	template<typename ... Args>
 	void subject<Args...>::remove_observer(observer<Args...>& observer)
 	{
-		observers_.erase(std::remove(observers_.begin(), observers_.end(), &observer), observers_.end());
-		observer.subjects_.erase(
-			std::remove(observer.subjects_.begin(), observer.subjects_.end(), this),
-			observer.subjects_.end());
+		for(auto it = observer.subjects_.rbegin(); it != observer.subjects_.rend(); ++it)
+		{
+			if(*it == this)
+			{
+				observer.subjects_.erase(std::next(it).base());
+				break;
+			}
+		}
+		for (auto it = observers_.rbegin(); it != observers_.rend(); ++it)
+		{
+			if (*it == &observer)
+			{
+				if(notify_counter_ == 0)
+				{
+					observers_.erase(std::next(it).base());
+				}
+				else
+				{
+					*it = nullptr;
+				}
+				
+				break;
+			}
+		}
 	}
 
 
@@ -256,16 +272,35 @@ namespace observe
 				std::remove(observer->subjects_.begin(), observer->subjects_.end(), this),
 				observer->subjects_.end());
 		}
-		observers_.clear();
+		if (notify_counter_ == 0)
+		{
+			observers_.clear();
+		}
+		else
+		{
+			for(auto it = observers_.begin(); it != observers_.end(); ++it)
+			{
+				*it = nullptr;
+			}
+		}
 	}
 
 
 	template<typename ... Args>
 	void subject<Args...>::operator()(Args ... args)
 	{
-		for(auto observer : observers_)
+		++notify_counter_;
+		auto size = observers_.size();
+		for(size_t i = 0; i < size; ++i)
 		{
-			observer->on_notify(args...);
+			if(observers_[i])
+			{
+				observers_[i]->on_notify(args...);
+			}
+		}
+		if(--notify_counter_ == 0)
+		{
+			observers_.erase(std::remove(observers_.begin(), observers_.end(), nullptr), observers_.end());
 		}
 	}
 }
