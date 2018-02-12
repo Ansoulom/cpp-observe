@@ -67,6 +67,8 @@ namespace observe
 	private:
 		std::vector<observer<Args...>*> observers_{};
 		int notify_counter_{};
+
+		friend class observer<Args...>;
 	};
 
 
@@ -115,27 +117,27 @@ namespace observe
 
 	template<typename ... Args>
 	observer<Args...>::observer(observer&& other) noexcept
-		: function_{move(other.function_)}
+		: function_{move(other.function_)}, subjects_{move(other.subjects_)}
 	{
-		for(auto subject : other.subjects_)
+		for (auto subject : subjects_)
 		{
-			subject->add_observer(*this);
+			auto it = std::find(subject->observers_.begin(), subject->observers_.end(), &other);
+			*it = this;
 		}
-		other.clear();
 	}
 
 
 	template<typename ... Args>
 	observer<Args...>& observer<Args...>::operator=(observer&& other) noexcept
 	{
-		function_ = move(other.function_);
-
 		clear();
-		for(auto subject : other.subjects_)
+		function_ = move(other.function_);
+		subjects_ = move(other.subjects_);
+		for (auto subject : subjects_)
 		{
-			subject->add_observer(*this);
+			auto it = std::find(subject->observers_.begin(), subject->observers_.end(), &other);
+			*it = this;
 		}
-		other.clear();
 
 		return *this;
 	}
@@ -201,13 +203,12 @@ namespace observe
 
 
 	template<typename ... Args>
-	subject<Args...>::subject(subject&& other) noexcept
+	subject<Args...>::subject(subject&& other) noexcept : observers_{move(other.observers_)}
 	{
-		for(auto observer : other.observers_)
+		for(auto observer : observers_)
 		{
-			add_observer(*observer);
+			observer->subjects_.erase(std::remove(observer->subjects_.begin(), observer->subjects_.end(), &other), observer->subjects_.end());
 		}
-		other.clear();
 	}
 
 
@@ -215,11 +216,11 @@ namespace observe
 	subject<Args...>& subject<Args...>::operator=(subject&& other) noexcept
 	{
 		clear();
-		for(auto observer : other.observers_)
+		observers_ = move(other.observers_);
+		for (auto observer : observers_)
 		{
-			add_observer(*observer);
+			observer->subjects_.erase(std::remove(observer->subjects_.begin(), observer->subjects_.end(), &other), observer->subjects_.end());
 		}
-		other.clear();
 
 		return *this;
 	}
