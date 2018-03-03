@@ -3,5 +3,3 @@ get_filename_component(cpp_observe_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
 if(NOT TARGET cpp_observe::cpp_observe)
 	include("${cpp_observe_CMAKE_DIR}/cpp_observeTargets.cmake")
 endif()
-
-set(cpp_observe_LIBRARIES cpp_observe::cpp_observe)

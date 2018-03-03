@@ -9,30 +9,29 @@ conan_basic_setup()
 
 # Library variables
 set(LIB_TARGET_NAME ${PROJ_NAME})
-set(LIB_INCLUDE_DIR source/library/include)
 
 # Create library
 add_library(${LIB_TARGET_NAME} INTERFACE)
-target_include_directories(${LIB_TARGET_NAME} INTERFACE ${LIB_INCLUDE_DIR})
+target_include_directories(${LIB_TARGET_NAME}
+	INTERFACE
+		$<INSTALL_INTERFACE:include>
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/source/library/include>
+)
 target_compile_features(${LIB_TARGET_NAME} INTERFACE cxx_std_17)
 
 add_library(${LIB_TARGET_NAME}::${LIB_TARGET_NAME} ALIAS ${LIB_TARGET_NAME})
 
 
-
-
+# Install
+set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install")
 include(GNUInstallDirs)
-set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake)
+set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_PREFIX})
 
 install(TARGETS ${LIB_TARGET_NAME}
-	EXPORT ${LIB_TARGET_NAME}-export
-	#LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	#ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	EXPORT ${LIB_TARGET_NAME}-targets
 )
 
-#set_target_properties(${LIB_TARGET_NAME} PROPERTIES EXPORT_NAME ${LIB_TARGET_NAME})
-
-install(DIRECTORY ${LIB_INCLUDE_DIR}/observe DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(DIRECTORY source/library/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 install(EXPORT ${LIB_TARGET_NAME}-targets
 	FILE
@@ -57,23 +56,20 @@ configure_package_config_file(
 )
 
 install(FILES
+	${CMAKE_SOURCE_DIR}/LICENSE
 	${CMAKE_CURRENT_BINARY_DIR}/${LIB_TARGET_NAME}Config.cmake
 	${CMAKE_CURRENT_BINARY_DIR}/${LIB_TARGET_NAME}ConfigVersion.cmake
 	DESTINATION ${INSTALL_CONFIGDIR}
 )
 
-
-
+# Export
 export(EXPORT ${LIB_TARGET_NAME}-targets
 	FILE
 		${CMAKE_CURRENT_BINARY_DIR}/${LIB_TARGET_NAME}Targets.cmake
 	NAMESPACE
 		${LIB_TARGET_NAME}::
 )
-
 export(PACKAGE ${LIB_TARGET_NAME})
-
-
 
 
 # Testing variables
