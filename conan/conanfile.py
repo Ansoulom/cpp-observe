@@ -21,6 +21,7 @@ class CppobserveConan(ConanFile):
 
     def package(self):
         self.copy("*.hpp", dst="include/observe", src="source/library/include/observe")
+        self.copy("LICENSE", dst="", src="")
 
     def package_id(self):
         self.info.requires.clear()
