@@ -131,20 +131,20 @@ TEST_CASE("Can use multiple observers for a subject", "[observer]")
 
 TEST_CASE("Move and copy operations work")
 {
-	auto test_result = "Has not changed";
+	auto test_result = "Has not changed"s;
 	auto times_executed = 0;
 	auto subject = observe::subject<>{};
 	SECTION("Observer move assignment operator")
 	{
 		auto observer_1 = observe::observer<>{};
 		{
-			auto observer_2 = observe::observer<>{ [&test_result]() {test_result = "Moved"; } };
+			auto observer_2 = observe::observer<>{ [&test_result]() {test_result = "Moved"s; } };
 			subject.add_observer(observer_2);
 			observer_1 = std::move(observer_2);
 		}
 		subject();
 
-		REQUIRE(test_result == "Moved");
+		REQUIRE(test_result == "Moved"s);
 	}
 	SECTION("Observer move constructor")
 	{
