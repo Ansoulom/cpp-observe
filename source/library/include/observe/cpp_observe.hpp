@@ -7,6 +7,7 @@
 #include <functional>
 #include <vector>
 #include <algorithm>
+#include <cassert>
 
 
 namespace observe
@@ -122,6 +123,7 @@ namespace observe
 		for (auto subject : subjects_)
 		{
 			auto it = std::find(subject->observers_.begin(), subject->observers_.end(), &other);
+			assert(it != subject->observers_.end());
 			*it = this;
 		}
 	}
@@ -136,6 +138,7 @@ namespace observe
 		for (auto subject : subjects_)
 		{
 			auto it = std::find(subject->observers_.begin(), subject->observers_.end(), &other);
+			assert(it != subject->observers_.end());
 			*it = this;
 		}
 
@@ -207,7 +210,9 @@ namespace observe
 	{
 		for(auto observer : observers_)
 		{
-			observer->subjects_.erase(std::remove(observer->subjects_.begin(), observer->subjects_.end(), &other), observer->subjects_.end());
+			auto iter = std::find(observer->subjects_.begin(), observer->subjects_.end(), &other);
+			assert(iter != observer->subjects_.end());
+			*iter = this;
 		}
 	}
 
@@ -219,7 +224,9 @@ namespace observe
 		observers_ = move(other.observers_);
 		for (auto observer : observers_)
 		{
-			observer->subjects_.erase(std::remove(observer->subjects_.begin(), observer->subjects_.end(), &other), observer->subjects_.end());
+			auto iter = std::find(observer->subjects_.begin(), observer->subjects_.end(), &other);
+			assert(iter != observer->subjects_.end());
+			*iter = this;
 		}
 
 		return *this;
