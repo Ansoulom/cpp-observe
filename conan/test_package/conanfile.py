@@ -3,15 +3,14 @@ import os
 
 class CppobserveTestConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake"
+    generators = "cmake_paths"
 
     def build(self):
         cmake = CMake(self)
-        # Current dir is "test_package/build/<build_id>" and CMakeLists.txt is in "test_package"
         cmake.configure()
         cmake.build()
 
     def test(self):
         if not tools.cross_building(self.settings):
-            os.chdir("bin")
+            os.chdir("Release")
             self.run(".%sexample" % os.sep)
