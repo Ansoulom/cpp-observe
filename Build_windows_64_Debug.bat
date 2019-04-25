@@ -3,6 +3,6 @@ cd %~dp0
 mkdir build
 cd build
 conan install .. --build missing
-cmake .. -G "Visual Studio 15 2017 Win64"
+cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_paths.cmake -G "Visual Studio 16 2019"
 cmake --build . --config debug
 pause
