@@ -62,15 +62,19 @@ export(EXPORT cpp_observe-targets
 )
 export(PACKAGE cpp_observe)
 
-# Create testing binary
+# Testing
+option(BUILD_TESTS "Build with tests" OFF)
+if(BUILD_TESTS)
+
 add_executable(cpp_observe_test
 source/tests/src/test_main.cpp
 source/tests/src/observer_tests.cpp
 )
-
 
 find_package(Catch2 REQUIRED)
 
 target_link_libraries(cpp_observe_test cpp_observe)
 target_link_libraries(cpp_observe_test Catch2::Catch2)
 target_compile_features(cpp_observe_test PRIVATE cxx_std_17)
+
+endif()
