@@ -1,4 +1,4 @@
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 #include <observe/cpp_observe.hpp>
 #include <string>
 
@@ -16,6 +16,7 @@ TEST_CASE("Callback works", "[observer]")
 
 	REQUIRE(times_executed == 1);
 
+	
 	SECTION("Can set a new function for the observer")
 	{
 		auto new_function = false;
@@ -25,11 +26,30 @@ TEST_CASE("Callback works", "[observer]")
 		REQUIRE(times_executed == 1);
 		REQUIRE(new_function);
 	}
-	SECTION("Adding an already added observer will not do anything")
+	SECTION("Adding an already added observer will make it execute twice")
 	{
 		subject.add_observer(observer);
 
 		times_executed = 0;
+		subject();
+		REQUIRE(times_executed == 2);
+	}
+}
+
+
+TEST_CASE("Operator += works")
+{
+	auto times_executed = 0;
+	auto subject = observe::subject<>{};
+	auto observer = observe::observer<>{ [&times_executed]() { ++times_executed; } };
+	subject += observer;
+	subject();
+
+	REQUIRE(times_executed == 1);
+
+	SECTION("Operator -= works")
+	{
+		subject -= observer;
 		subject();
 		REQUIRE(times_executed == 1);
 	}
@@ -74,7 +94,7 @@ TEST_CASE("Can use multiple observers for a subject", "[observer]")
 		SECTION("Removing an observer that has not be added will not do anything")
 		{
 			auto observer_4 = observe::observer<>{ [&sum]() {sum += 4; } };
-			subject.remove_observer(observer_4);
+			REQUIRE_NOTHROW(subject.remove_observer(observer_4));
 
 			sum = 0;
 			REQUIRE_NOTHROW(subject());
@@ -111,20 +131,20 @@ TEST_CASE("Can use multiple observers for a subject", "[observer]")
 
 TEST_CASE("Move and copy operations work")
 {
-	auto test_result = "Has not changed";
+	auto test_result = "Has not changed"s;
 	auto times_executed = 0;
 	auto subject = observe::subject<>{};
 	SECTION("Observer move assignment operator")
 	{
 		auto observer_1 = observe::observer<>{};
 		{
-			auto observer_2 = observe::observer<>{ [&test_result]() {test_result = "Moved"; } };
+			auto observer_2 = observe::observer<>{ [&test_result]() {test_result = "Moved"s; } };
 			subject.add_observer(observer_2);
 			observer_1 = std::move(observer_2);
 		}
 		subject();
 
-		REQUIRE(test_result == "Moved");
+		REQUIRE(test_result == "Moved"s);
 	}
 	SECTION("Observer move constructor")
 	{

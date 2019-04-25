@@ -1,43 +1,76 @@
 cmake_minimum_required(VERSION 3.9)
-
-set(PROJ_NAME "cpp_observe")
-project(${PROJ_NAME} VERSION 0.1 LANGUAGES CXX)
-
-# Compiler flags
-set(CMAKE_CXX_STANDARD 17)
-
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC") # MSVC specific commands
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17") # MSVC does not support CMAKE_CXX_STANDARD
-endif()
-
-# Build path variables
-set(PROJ_PATH ${CMAKE_SOURCE_DIR})
-set(PROJ_BUILD_PATH ${PROJ_PATH}/build)
-set(CMAKE_BINARY_DIR ${PROJ_BUILD_PATH})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJ_BUILD_PATH})
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJ_BUILD_PATH})
-
-# Conan setup
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
-
-# Library variables
-set(LIB_TARGET_NAME ${PROJ_NAME})
-set(LIB_INCLUDE_DIR source/library/include)
+project(cpp_observe VERSION 0.2.0 LANGUAGES CXX)
 
 # Create library
-add_library(${LIB_TARGET_NAME} INTERFACE)
-target_include_directories(${LIB_TARGET_NAME} INTERFACE ${LIB_INCLUDE_DIR})
+add_library(cpp_observe INTERFACE)
+target_include_directories(cpp_observe
+	INTERFACE
+		$<INSTALL_INTERFACE:include>
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/source/library/include>
+)
+target_compile_features(cpp_observe INTERFACE cxx_std_17)
 
-# Testing variables
-set(TEST_TARGET_NAME ${PROJ_NAME}_test)
-set(TEST_SOURCE_DIR source/tests/src)
-set(TEST_SOURCE_FILES
-${TEST_SOURCE_DIR}/test_main.cpp
-${TEST_SOURCE_DIR}/observer_tests.cpp
+add_library(cpp_observe::cpp_observe ALIAS cpp_observe)
+
+
+# Install
+set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install)
+include(GNUInstallDirs)
+set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_PREFIX})
+
+install(TARGETS cpp_observe
+	EXPORT cpp_observe-targets
 )
 
+install(DIRECTORY source/library/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+install(EXPORT cpp_observe-targets
+	FILE
+		cpp_observeTargets.cmake
+	NAMESPACE
+		cpp_observe::
+	DESTINATION
+		${INSTALL_CONFIGDIR}
+)
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+	${CMAKE_CURRENT_BINARY_DIR}/cpp_observeConfigVersion.cmake
+	VERSION ${PROJECT_VERSION}
+	COMPATIBILITY AnyNewerVersion
+)
+
+configure_package_config_file(
+	${CMAKE_CURRENT_LIST_DIR}/cmake/cpp_observeConfig.cmake.in
+	${CMAKE_CURRENT_BINARY_DIR}/cpp_observeConfig.cmake
+	INSTALL_DESTINATION ${INSTALL_CONFIGDIR}
+)
+
+install(FILES
+	${CMAKE_SOURCE_DIR}/LICENSE
+	${CMAKE_CURRENT_BINARY_DIR}/cpp_observeConfig.cmake
+	${CMAKE_CURRENT_BINARY_DIR}/cpp_observeConfigVersion.cmake
+	DESTINATION ${INSTALL_CONFIGDIR}
+)
+
+# Export
+export(EXPORT cpp_observe-targets
+	FILE
+		${CMAKE_CURRENT_BINARY_DIR}/cpp_observeTargets.cmake
+	NAMESPACE
+		cpp_observe::
+)
+export(PACKAGE cpp_observe)
+
 # Create testing binary
-add_executable(${TEST_TARGET_NAME} ${TEST_SOURCE_FILES})
-target_link_libraries(${TEST_TARGET_NAME} ${LIB_TARGET_NAME})
-target_link_libraries(${TEST_TARGET_NAME} ${CONAN_LIBS})
+add_executable(cpp_observe_test
+source/tests/src/test_main.cpp
+source/tests/src/observer_tests.cpp
+)
+
+
+find_package(Catch2 REQUIRED)
+
+target_link_libraries(cpp_observe_test cpp_observe)
+target_link_libraries(cpp_observe_test Catch2::Catch2)
+target_compile_features(cpp_observe_test PRIVATE cxx_std_17)

@@ -1,4 +1,5 @@
 @echo off
-cd build/bin
+cd %~dp0
+cd build/Release
 cpp_observe_test
 pause
