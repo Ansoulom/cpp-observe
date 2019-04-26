@@ -16,7 +16,7 @@ add_library(cpp_observe::cpp_observe ALIAS cpp_observe)
 # Install
 set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install)
 include(GNUInstallDirs)
-set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_PREFIX})
+set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_PREFIX}/lib/cmake/cpp_observe)
 
 install(TARGETS cpp_observe
 	EXPORT cpp_observe-targets
@@ -37,7 +37,7 @@ include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
 	${CMAKE_CURRENT_BINARY_DIR}/cpp_observeConfigVersion.cmake
 	VERSION ${PROJECT_VERSION}
-	COMPATIBILITY AnyNewerVersion
+	COMPATIBILITY SameMajorVersion
 )
 
 configure_package_config_file(
@@ -47,10 +47,14 @@ configure_package_config_file(
 )
 
 install(FILES
-	${CMAKE_SOURCE_DIR}/LICENSE
 	${CMAKE_CURRENT_BINARY_DIR}/cpp_observeConfig.cmake
 	${CMAKE_CURRENT_BINARY_DIR}/cpp_observeConfigVersion.cmake
 	DESTINATION ${INSTALL_CONFIGDIR}
+)
+
+install(FILES
+	${CMAKE_SOURCE_DIR}/LICENSE
+	DESTINATION ${CMAKE_INSTALL_PREFIX}
 )
 
 # Export
