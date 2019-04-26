@@ -10,7 +10,7 @@ class CppobserveConan(ConanFile):
     author = "Anton Södergren (anton.sodergren@gmail.com)"
     topics = ("observer", "signals", "slots")
     settings = None
-    exports_sources = "../cmake*", "../source*", "!../source/tests*", "../CMakeLists.txt", "../LICENSE"
+    exports_sources = "../cmake*", "../source*", "!source/tests*", "../CMakeLists.txt", "../LICENSE"
     generators = "cmake_paths"
     no_copy_source = True
 
